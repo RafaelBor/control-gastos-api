@@ -1,7 +1,12 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { CategoryEntity } from "src/categories/entities/category.entity";
+import { MonthEntity } from "src/month/entities/month.entity";
+import { UserInfoEntity } from "src/common/entities/user_info.entity";
+import { ExpenseEntity } from "src/expenses/entities/expenses.entity";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { EmailVerificationEntity } from "./email-verification.entity";
 
 @Entity('users')
-export class User {
+export class UserEntity {
 
     @PrimaryGeneratedColumn('uuid')
     id:string
@@ -14,29 +19,54 @@ export class User {
     @Column('text',{
         unique:true
     })
-    nombre:string
+    name:string
 
     @Column('text',{
         unique:true
     })
-    apellidos:string
+    lastname:string
 
     @Column('text',{
         select: false
     })
     password:string
 
-    @Column('text',{
-        default: 'admin'
+    @Column('boolean', {
+        default: false
     })
-    role:string
+    verified: boolean;
 
+    @OneToMany(
+        () => CategoryEntity,
+        (category) => category.usuario,
+        {cascade: true}
+    )
+    categories: CategoryEntity[]
 
-    // @OneToMany(
-    //     () => Cliente,
-    //     (cliente) => cliente.usuario
-    // )
-    // cliente: Cliente
+    @OneToOne(
+        () => UserInfoEntity,
+        (userInfo) => userInfo.user,
+        { cascade: true }
+    )
+    userInfo: UserInfoEntity
+
+    @OneToMany(
+        () => MonthEntity,
+        (month) => month.usuario
+    )
+    months: MonthEntity[]
+
+    @OneToMany(
+        () => ExpenseEntity,
+        (expense) => expense.usuario
+    )
+    expenses: ExpenseEntity[]
+
+    @OneToMany(
+        () => EmailVerificationEntity,
+        (verification) => verification.user,
+    )
+    emailVerifications: EmailVerificationEntity[];
 
 
     @BeforeInsert()

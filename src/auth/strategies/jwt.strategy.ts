@@ -5,15 +5,15 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { use } from "passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { Repository } from "typeorm";
-import { User } from "../entities/auth.entity";
+import { UserEntity } from "../entities/auth.entity";
 import { JwtPayload } from "../interfaces/jwt-payload.interface";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy){
 
     constructor(
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
+        @InjectRepository(UserEntity)
+        private readonly userRepository: Repository<UserEntity>,
 
         private configService:ConfigService
 
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy){
           });
     }
 
-    async validate(payload:JwtPayload): Promise<User>{
+    async validate(payload:JwtPayload): Promise<UserEntity>{
 
         const {id} = payload
 

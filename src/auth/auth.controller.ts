@@ -7,9 +7,11 @@ import { GetUser } from './decorators/get-user.decorator';
 import { RoleProtected } from './decorators/role-protected.decorator';
 import { createUserDto } from './dto/create-user.dto';
 import { loginUserDto } from './dto/login-user.dto';
-import { User } from './entities/auth.entity';
+import { UserEntity } from './entities/auth.entity';
 import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces/valid-role.interface';
+import { httpResponse } from 'src/common/utils/http-response.util';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 
 @Controller('auth')
@@ -18,41 +20,79 @@ export class AuthController {
 
 
   @Post('register')
-  create(@Body() createUserDto: createUserDto) {
-    return this.authService.create(createUserDto);
+  async create(@Body() createUserDto: createUserDto) {
+    const res = await this.authService.create(createUserDto);
+
+    return httpResponse(res, 'Se ha registrado correctamente')
   }
 
   @Post('login')
-  login(@Body() loginUserDto: loginUserDto) {
-    return this.authService.login(loginUserDto);
+  async login(@Body() loginUserDto: loginUserDto) {
+    const res = await this.authService.login(loginUserDto);
+
+    return httpResponse(res, 'Se ha autentificado correctamente')
   }
 
+  @Get('user-info')
+  @Auth()
+  async getUserInfo(
+    @GetUser() user: UserEntity
+  ){
+    const res = await this.authService.getInfoUser(user);
 
-  @Get('test')
-  @RoleProtected(ValidRoles.admin)
-  @UseGuards(AuthGuard(), UserRoleGuard)
-  test(
-    @GetUser() user: User,
-    @GetUser('email') userEmail
-    ){
-    return{
-      "test":true,
+    return httpResponse(res, 'Informacion obtenida correctamente')
+  }
+
+  @Get('check-token')
+  @Auth()
+  checkToken(
+    @GetUser() user: UserEntity
+  ){
+    return httpResponse({    
       user,
-      userEmail
-    }
+      token: this.authService.getJwtToken({id: user.id})}, 'Se ha realizado la operacion correctamente')
   }
 
-
-  @Get('test2')
-  @Auth(ValidRoles.admin)
-  test2(
-    @GetUser() user: User,
-    @GetUser('email') userEmail
-    ){
-    return{
-      "test":true,
-      user,
-      userEmail
-    }
+  @Post('verify-email')
+  async verifyEmail(@Body() verifyDto: VerifyEmailDto) {
+    return this.authService.verifyEmailCode(verifyDto);
   }
+
+ @Post('send-verification')
+ async sendVerificationCode(@Body() dto: { email: string }) {
+
+  const res = await this.authService.resendVerificationCode(dto)
+
+  return httpResponse(res, 'Informacion obtenida correctamente')
+ }
+
+
+
+  // @Get('test')
+  // @RoleProtected(ValidRoles.admin)
+  // @UseGuards(AuthGuard(), UserRoleGuard)
+  // test(
+  //   @GetUser() user: UserEntity,
+  //   @GetUser('email') userEmail
+  //   ){
+  //   return{
+  //     "test":true,
+  //     user,
+  //     userEmail
+  //   }
+  // }
+
+
+  // @Get('test2')
+  // @Auth(ValidRoles.admin)
+  // test2(
+  //   @GetUser() user: UserEntity,
+  //   @GetUser('email') userEmail
+  //   ){
+  //   return{
+  //     "test":true,
+  //     user,
+  //     userEmail
+  //   }
+  // }
 }

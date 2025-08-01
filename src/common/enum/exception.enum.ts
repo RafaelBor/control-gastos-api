@@ -1,0 +1,12 @@
+export enum ExceptionEnum {
+    PROCESS_DOCUMENTS = 1,
+    UNAUTHORIZED_LOGIN,
+    MS_NOT_RESPONDING,
+    INVALID_TOKEN,
+    FORBIDDEN,
+    MS_ERROR,
+    NOT_FOUND,
+    BAD_REQUEST,
+    DB_TRANSACTION,
+  }
+  
