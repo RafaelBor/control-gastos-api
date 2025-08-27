@@ -79,8 +79,6 @@ export class ExpensesService {
             expenses,
             totalExpense
         }
-
-
     }
 
     async getExpenseById(id: string){
@@ -98,15 +96,37 @@ export class ExpensesService {
 
     }
 
-    async updateExpenseById(id: string, addExpenseDto: addExpenseDto){
+    async updateExpenseById(id: string, addExpenseDto: addExpenseDto, user: UserEntity){
         try {
-        await this.expenseRepository.update(id, {
+
+            const existingExpense = await this.expenseRepository.findOne({
+                    where: { id },
+                    relations: ['month'],
+                });
+
+            if (!existingExpense) {
+                throw new HttpExceptionWM({
+                    statusCode: 404,
+                    type: ExceptionEnum.NOT_FOUND,
+                    message: 'Gasto no encontrado',
+                });
+            }
+
+            const oldExpenseAmount = Number(existingExpense.expense);
+            const newExpenseAmount = Number(addExpenseDto.expense);
+            const difference = newExpenseAmount - oldExpenseAmount;
+
+            const month = existingExpense.month;
+            month.expenses_montly = Number(month.expenses_montly) + difference;
+
+            await this.expenseRepository.update(id, {
                 expense: addExpenseDto.expense,
                 detail: addExpenseDto.detail,
                 category: {
                     id: addExpenseDto.categoryId
                 }
             })
+            await this.monthRepository.save(month);
 
             return;
         } catch (error) {
@@ -117,6 +137,44 @@ export class ExpensesService {
             }
 
             // Si el error es diferente, devolvemos un error genérico de servidor
+            throw new HttpExceptionWM({
+                statusCode: 500,
+                type: ExceptionEnum.MS_ERROR,
+                message: "Ocurrió un error interno al procesar la solicitud",
+            });
+        }
+    }
+
+    async deleteExpenseById(id: string, user: UserEntity){
+        try {
+            const expense = await this.expenseRepository.findOne({
+                    where: { id },
+                    relations: ['month'],
+            })
+
+
+            if(!expense)
+                  throw new HttpExceptionWM({
+                    statusCode: 400,
+                    type: ExceptionEnum.NOT_FOUND,
+                    message: `No se encontro informacion para el gasto`,
+                });
+
+
+            const month = expense.month;
+            const expenseTotal = Number(month.expenses_montly) - Number(expense.expense)
+            month.expenses_montly = expenseTotal;
+            
+            await this.expenseRepository.delete(id)
+            await this.monthRepository.save(month)
+
+            return;
+        } catch (error) {
+            console.log(error)
+            if (error instanceof HttpExceptionWM) {
+                throw error;
+            }
+
             throw new HttpExceptionWM({
                 statusCode: 500,
                 type: ExceptionEnum.MS_ERROR,

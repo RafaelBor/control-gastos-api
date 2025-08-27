@@ -1,7 +1,7 @@
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { addExpenseDto } from './dtos/add_expense.dto';
 import { ExpensesService } from './expenses.service';
-import { Body, Controller, Post, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, Put, Delete } from '@nestjs/common';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { UserEntity } from 'src/auth/entities/auth.entity';
 import { httpResponse } from 'src/common/utils/http-response.util';
@@ -49,9 +49,21 @@ export class ExpensesController {
     async updateExpenseById(
         @Param('id') id: string,
         @Body() addExpenseDto: addExpenseDto,
+        @GetUser() user: UserEntity
     ){
-        const res = await this.ExpensesService.updateExpenseById(id, addExpenseDto);
+        const res = await this.ExpensesService.updateExpenseById(id, addExpenseDto, user);
 
         return httpResponse(res, 'El gasto se actualizo correctamente.')
+    }
+
+    @Delete(':id')
+    @Auth()
+    async deleteExpenseById(
+        @Param('id') id: string,
+        @GetUser() user: UserEntity
+    ){
+        const res = await this.ExpensesService.deleteExpenseById(id, user);
+
+        return httpResponse(res, 'El gasto se elimino correctamente.')
     }
 }

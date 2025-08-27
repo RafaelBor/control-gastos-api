@@ -71,7 +71,9 @@ export class UserEntity {
 
     @BeforeInsert()
     checkFieldsBeforeInsert(){
-        this.email = this.email.toLowerCase().trim();
+        if (this.email) {
+            this.email = this.email.toLowerCase().trim();
+        }
     }
 
     @BeforeUpdate()

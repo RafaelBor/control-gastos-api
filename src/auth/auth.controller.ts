@@ -12,6 +12,8 @@ import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces/valid-role.interface';
 import { httpResponse } from 'src/common/utils/http-response.util';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ChangePasswordDto } from './dto/change.password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 
 @Controller('auth')
@@ -64,6 +66,26 @@ export class AuthController {
   const res = await this.authService.resendVerificationCode(dto)
 
   return httpResponse(res, 'Informacion obtenida correctamente')
+ }
+
+ @Patch('change-password')
+ @Auth()
+ async changePassword(
+  @Body() dto: ChangePasswordDto,
+  @GetUser() user: UserEntity
+ ){
+  const res = await this.authService.changePassword(dto, user)
+
+  return httpResponse(res, 'Informacion obtenida correctamente')
+ }
+
+ @Post('request-password-reset')
+ async requestPasswordReset(
+  @Body() dto: ForgotPasswordDto
+ ){
+  const res = await this.authService.requestPasswordReset(dto)
+
+  return httpResponse(res, 'Correo de recuperacion enviado correctamente')
  }
 
 

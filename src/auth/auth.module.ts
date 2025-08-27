@@ -9,12 +9,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UserInfoEntity } from 'src/common/entities/user_info.entity';
 import { EmailVerificationEntity } from './entities/email-verification.entity';
+import { PasswordResetToken } from './entities/password-reset-token.entity';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
   imports: [
-    TypeOrmModule.forFeature([UserEntity, UserInfoEntity, EmailVerificationEntity]),
+    TypeOrmModule.forFeature([UserEntity, UserInfoEntity, EmailVerificationEntity, PasswordResetToken]),
     PassportModule.register({defaultStrategy: 'jwt'}),
 
     ConfigModule,
