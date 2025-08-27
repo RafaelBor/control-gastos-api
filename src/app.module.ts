@@ -33,10 +33,11 @@ import { MailerModule } from '@nestjs-modules/mailer';
     }),
     MailerModule.forRoot({
       transport: {
-        service: 'gmail',
+        service: 'smtp.sendgrid.net',
+        port: 587,
         auth: {
-          user: process.env.EMAIL_ACCOUNT,
-          pass: process.env.EMAIL_PASS,
+          user: 'apikey',
+          pass: process.env.SENDGRID_API_KEY,
         },
       },
       defaults: {
