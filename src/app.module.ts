@@ -33,8 +33,9 @@ import { MailerModule } from '@nestjs-modules/mailer';
     }),
     MailerModule.forRoot({
       transport: {
-        service: 'smtp.sendgrid.net',
+        host: 'smtp.sendgrid.net',
         port: 587,
+        secure: false,
         auth: {
           user: 'apikey',
           pass: process.env.SENDGRID_API_KEY,
