@@ -42,7 +42,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
         },
       },
       defaults: {
-        from: '"MiauHORROS" <no-reply@miau.com>',
+        from: '"MiauHORROS" <miauhorros.app@gmail.com>',
       },
     }),
     AuthModule,
