@@ -19,6 +19,7 @@ import { ChangePasswordDto } from './dto/change.password.dto';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { randomUUID } from 'crypto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailService } from 'src/common/services/mail/mail.service';
 
 
 @Injectable()
@@ -39,7 +40,9 @@ export class AuthService {
 
     private readonly mailerService: MailerService,
 
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+
+    private readonly mailService: MailService
   ){}
 
   async create(createAuthDto: createUserDto) {
@@ -209,11 +212,13 @@ async resendVerificationCode(dto: {email: string}){
 
   const emailTemplate = this.getVerificationEmailTemplate(user.email, verificationCode)
 
-  await this.mailerService.sendMail({
-    to: user.email,
-    subject: 'Verifica tu correo para MiauHORROS',
-    html: emailTemplate,
-  });
+  await this.mailService.sendVerificationEmail(user.email, emailTemplate, 'Verifica tu correo para MiauHORROS')
+
+  // await this.mailerService.sendMail({
+  //   to: user.email,
+  //   subject: 'Verifica tu correo para MiauHORROS',
+  //   html: emailTemplate,
+  // });
 
   return { message: 'Se envió un nuevo código de verificación' };
 }

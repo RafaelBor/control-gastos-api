@@ -10,10 +10,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { UserInfoEntity } from 'src/common/entities/user_info.entity';
 import { EmailVerificationEntity } from './entities/email-verification.entity';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
+import { MailService } from 'src/common/services/mail/mail.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, MailService],
   imports: [
     TypeOrmModule.forFeature([UserEntity, UserInfoEntity, EmailVerificationEntity, PasswordResetToken]),
     PassportModule.register({defaultStrategy: 'jwt'}),
